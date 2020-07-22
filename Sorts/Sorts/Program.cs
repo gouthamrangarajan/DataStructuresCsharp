@@ -10,72 +10,79 @@ namespace Sorts
         {
 
             Sort st = new Sort();
-            var unSortedList = new List<int>();
-            var rand = new Random().Next(1000000);
-            var rand1 = new Random();
-            for (var i = rand; i >1; i--)
-            {
-                unSortedList.Add(rand1.Next(1000000));
-            }
+            var unSortedList = new List<int>{ 100,10,200,1,54,45,5,66,99 };
+            //var rand = new Random().Next(1000000);
+            //var rand1 = new Random();
+            //for (var i = rand; i > 1; i--)
+            //{
+            //    unSortedList.Add(rand1.Next(1000000));
+            //}
 
             Console.WriteLine($"No Of Items {unSortedList.Count}");
-            Console.WriteLine($"Time Start Quick Sort {DateTime.Now.ToString("HH:mm:ss")}");
-            var test = st.QuickSort(unSortedList.ToArray());
+            var inArray1 = unSortedList.ToArray();
+            Console.WriteLine($"Time Start Quick Sort {DateTime.Now.ToString("HH:mm:ss")}");           
+            Sort.QuickSort(inArray1);
             Console.WriteLine($"Time Completed Quick Sort {DateTime.Now.ToString("HH:mm:ss")}");            
-            Console.WriteLine($"Time Start Max Heap Sort {DateTime.Now.ToString("HH:mm:ss")}");
-            var ret=st.MaxHeapSort(unSortedList.ToArray());
-            Console.WriteLine($"Time Completed Max Heap Sort {DateTime.Now.ToString("HH:mm:ss")}");
-            Console.WriteLine($"Time Start Min Heap Sort {DateTime.Now.ToString("HH:mm:ss")}");
-            var ret1 = st.MinHeapSort(unSortedList.ToArray());
-            Console.WriteLine($"Time Completed Min Heap Sort {DateTime.Now.ToString("HH:mm:ss")}");
+            //Console.WriteLine($"Time Start Max Heap Sort {DateTime.Now.ToString("HH:mm:ss")}");
+            //var ret=st.MaxHeapSort(unSortedList.ToArray());
+            //Console.WriteLine($"Time Completed Max Heap Sort {DateTime.Now.ToString("HH:mm:ss")}");
+            //Console.WriteLine($"Time Start Min Heap Sort {DateTime.Now.ToString("HH:mm:ss")}");
+            //var ret1 = st.MinHeapSort(unSortedList.ToArray());
+            //Console.WriteLine($"Time Completed Min Heap Sort {DateTime.Now.ToString("HH:mm:ss")}");
             Console.ReadLine();
         }
     }
 
     public class Sort
     {
-        
-        private List<int> RecursiveQuickSort(List<int> inList)
-        {            
-            var pivotEl = inList[inList.Count / 2];
-            var lessList = new List<int>();
-            var highList = new List<int>();
-            var equalList = new List<int>();
-            inList.ForEach(el =>
-            {
-                if (el < pivotEl)
-                {
-                    lessList.Add(el);
-                }
-                else if (el > pivotEl)
-                {
-                    highList.Add(el);
-                }
-                else
-                {
-                    equalList.Add(el);
-                }
-            });
-            inList.Clear();
-            if (lessList.Count > 0)
-                inList.AddRange(RecursiveQuickSort(lessList));
-
-            inList.AddRange(equalList);
-            if (highList.Count > 0)
-                inList.AddRange(RecursiveQuickSort(highList));
-            return inList;
+        private static void Swap(int[] inArray,int pos1,int pos2)
+        {
+            var temp = inArray[pos1];
+            inArray[pos1] = inArray[pos2];
+            inArray[pos2] = temp;          
         }
-        public int[] QuickSort(int[] inArray)
+        private static void RecursiveQuickSort(int[] inArray, int startInd, int endInd)
+        {
+            if (startInd >= endInd)
+                return;
+            var pivotInd = (startInd + endInd) / 2;
+            var pivotEl = inArray[pivotInd];
+
+            var left = startInd;
+            var right = endInd;
+
+            while (left <= right)
+            {
+                while (inArray[left] < pivotEl)
+                    left++;
+
+                while (inArray[right] > pivotEl)
+                    right--;
+
+                if (left <= right)
+                {
+                    Swap(inArray, left, right);
+                    left++;
+                    right--;
+                }
+            }
+
+            RecursiveQuickSort(inArray, startInd, left-1);
+            RecursiveQuickSort(inArray, left , endInd);
+        }
+        public static void QuickSort(int[] inArray)
         {
             
             if(inArray==null || inArray.Length == 0)
             {
                 //validation
-                return null;
+                return;
             }
 
-            return RecursiveQuickSort(inArray.ToList()).ToArray();                
+            RecursiveQuickSort(inArray,0,inArray.Length-1);                
         }
+
+        
 
         public int[] MaxHeapSort(int[] inArray)
         {
@@ -258,12 +265,7 @@ namespace Sorts
                 }
             }
         }
-        private void Swap(int[] inArray, int ind1, int ind2)
-        {
-            var tmp = inArray[ind2];
-            inArray[ind2] = inArray[ind1];
-            inArray[ind1] = tmp;
-        }
+       
        
 
 

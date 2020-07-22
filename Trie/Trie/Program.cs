@@ -13,7 +13,7 @@ namespace Trie
             var tr = new Trie();
             Console.WriteLine($"Start Time for Trie construction {DateTime.Now.ToString("HH:mm:ss")}");
             tr.AddData(new List<string> { "Cat","Calf", "Call", "Cab","Calf","Calves" ,"BAt","bat","Ball","ball","bumper","No","Now"});
-            //var ran = 1000000;
+            //var ran = new Random().Next(100,1000);
             //var lclList = new List<string>();
             //for (var i = 1; i <= ran; i++)
             //{
@@ -62,71 +62,7 @@ namespace Trie
         }
     }
 
-    public class Node
-    {
-        public Dictionary<char,Node> Children { get; set; } = new Dictionary<char,Node>();
-        public bool IsCompleted { get; set; }
-
-        private Node GetChildNode(char c)
-        {
-            if (!Children.ContainsKey(c))
-                Children.Add(c, new Node());
-
-            return Children[c];
-        }
-
-        private Node TryGetChildNode(char c)
-        {
-            if (Children.ContainsKey(c))
-                return Children[c];
-            else
-                return null;
-        }
-
-        public void Add(string s)
-        {
-            if(!string.IsNullOrWhiteSpace(s))
-                Add(s, 0);
-        }
-        private void Add(string s, int index)
-        {
-            var child = GetChildNode(s[index]);
-            if (s.Length > index + 1)
-                child.Add(s.Substring(index + 1));
-            else
-                child.IsCompleted = true;
-        }
-        public void Find(string query, List<String> result)
-        {
-            if (string.IsNullOrWhiteSpace(query) || query.Length == 0)
-                return;
-            if (result == null)
-                result = new List<string>();
-            RecursiveFind(query, 0, result);
-        }
-
-        public void RecursiveFind(string query,int index,List<string> result)
-        {
-            var child = TryGetChildNode(query[index]);
-            if (child != null)
-            {                               
-                if (query.Length > index + 1)
-                    child.RecursiveFind(query,index+1, result);
-                else
-                {
-                    string prefixString = query.Substring(0, index+1);
-                    RecursiveCollect(child, prefixString, result);
-                }
-            }
-        }
-        private static void RecursiveCollect(Node node,string prefixString,List<string> result)
-        {
-            if (node.IsCompleted)
-                result.Add(prefixString);
-            foreach (var kvp in node.Children) RecursiveCollect(kvp.Value, prefixString + kvp.Key, result);           
-        }
-
-    }
+  
     public class Trie
     {
         private Node _root = new Node();
@@ -141,6 +77,67 @@ namespace Trie
             var retList = new List<String>();
             _root.Find(query.ToLower(), retList);
             return retList;
+        }
+        private class Node
+        {
+            public Dictionary<char, Node> Children { get; set; } = new Dictionary<char, Node>();
+            public bool IsCompleted { get; set; }
+
+            private Node GetChildNode(char c)
+            {
+                if (!Children.ContainsKey(c))
+                    Children.Add(c, new Node());
+
+                return Children[c];
+            }
+
+            private Node TryGetChildNode(char c)
+            {
+                if (Children.ContainsKey(c))
+                    return Children[c];
+                else
+                    return null;
+            }
+
+            public void Add(string s)
+            {
+                if (string.IsNullOrWhiteSpace(s))
+                    return;
+
+                var child = GetChildNode(s[0]);
+                if (s.Length >  1)  child.Add(s.Substring(1));
+                else child.IsCompleted = true;
+            }           
+            public void Find(string query, IList<String> result)
+            {
+                if (string.IsNullOrWhiteSpace(query) || query.Length == 0)
+                    return;
+                if (result == null)
+                    result = new List<string>();
+                FindDepthAndCollect(query, 0, result);
+            }
+
+            private void FindDepthAndCollect(string query, int index, IList<string> result)
+            {
+                var child = TryGetChildNode(query[index]);
+                if (child != null)
+                {
+                    if (query.Length > index + 1)
+                        child.FindDepthAndCollect(query, index + 1, result);
+                    else
+                    {
+                        string prefixString = query.Substring(0, index + 1);
+                        RecursiveCollect(child, prefixString, result);
+                    }
+                }
+            }
+            private static void RecursiveCollect(Node node, string prefixString, IList<string> result)
+            {
+                if (node.IsCompleted)
+                    result.Add(prefixString);
+                foreach (var kvp in node.Children) RecursiveCollect(kvp.Value, prefixString + kvp.Key, result);
+            }
+
         }
     }
 

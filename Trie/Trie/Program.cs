@@ -11,15 +11,16 @@ namespace Trie
         {
             
             var tr = new Trie();
-            tr.AddStrings(new List<string> { "Cat","Calf", "Call", "Cab","Calf","Calves" ,"BAt","bat","Ball","ball","bumper"});
-            var ran = 1000000;
-            var lclList = new List<string>();
-            for(var i=1;i<=ran; i++)
-            {
-                lclList.Add("test"+i);
-            }
             Console.WriteLine($"Start Time for Trie construction {DateTime.Now.ToString("HH:mm:ss")}");
-            tr.AddStrings(lclList);
+            tr.AddData(new List<string> { "Cat","Calf", "Call", "Cab","Calf","Calves" ,"BAt","bat","Ball","ball","bumper","No","Now"});
+            //var ran = 1000000;
+            //var lclList = new List<string>();
+            //for (var i = 1; i <= ran; i++)
+            //{
+            //    lclList.Add("test" + i);
+            //}
+
+            //tr.AddData(lclList);
             Console.WriteLine($"End Time {DateTime.Now.ToString("HH:mm:ss")}");
             var readValue = "";
             Console.WriteLine("Type search text and press enter...(esc to quit)");
@@ -63,122 +64,86 @@ namespace Trie
 
     public class Node
     {
-        public char Value { get; set; }
+        public Dictionary<char,Node> Children { get; set; } = new Dictionary<char,Node>();
+        public bool IsCompleted { get; set; }
 
-        public Node Parent { get; set; }
-
-        public int Depth { get; set; }
-
-        public List<Node> Children { get; set; }
-
-        public Node(char value,Node parent,int depth)
+        private Node GetChildNode(char c)
         {
-            Children = new List<Node>();        
-            Value = value;
-            Parent = parent;
-            Depth = depth;
+            if (!Children.ContainsKey(c))
+                Children.Add(c, new Node());
+
+            return Children[c];
         }
 
-        public Node FindChildNode(char c)
+        private Node TryGetChildNode(char c)
         {
-            return Children.Find(e => e.Value.ToString().ToLower() == c.ToString().ToLower());
+            if (Children.ContainsKey(c))
+                return Children[c];
+            else
+                return null;
         }
+
+        public void Add(string s)
+        {
+            if(!string.IsNullOrWhiteSpace(s))
+                Add(s, 0);
+        }
+        private void Add(string s, int index)
+        {
+            var child = GetChildNode(s[index]);
+            if (s.Length > index + 1)
+                child.Add(s.Substring(index + 1));
+            else
+                child.IsCompleted = true;
+        }
+        public void Find(string query, List<String> result)
+        {
+            if (string.IsNullOrWhiteSpace(query) || query.Length == 0)
+                return;
+            if (result == null)
+                result = new List<string>();
+            RecursiveFind(query, 0, result);
+        }
+
+        public void RecursiveFind(string query,int index,List<string> result)
+        {
+            var child = TryGetChildNode(query[index]);
+            if (child != null)
+            {                               
+                if (query.Length > index + 1)
+                    child.RecursiveFind(query,index+1, result);
+                else
+                {
+                    string prefixString = query.Substring(0, index+1);
+                    RecursiveCollect(child, prefixString, result);
+                }
+            }
+        }
+        private static void RecursiveCollect(Node node,string prefixString,List<string> result)
+        {
+            if (node.IsCompleted)
+                result.Add(prefixString);
+            foreach (var kvp in node.Children) RecursiveCollect(kvp.Value, prefixString + kvp.Key, result);           
+        }
+
     }
-
     public class Trie
     {
-        private readonly Node _root;
-        public Trie()
+        private Node _root = new Node();
+
+        public void AddData(IList<string> data)
         {
-            _root = new Node('^',null,0);            
+            foreach (var dt in data) _root.Add(dt.ToLower());
         }
 
-        private Node FindCommon(string data)
+        public IList<String> FindAllMatch(string query)
         {
-            var retNode = _root;
-            foreach(var c in data)
-            {
-                var fndNode=retNode.FindChildNode(c);
-                if (fndNode == null)
-                    break;
-                retNode = fndNode;
-            }
-            return retNode;
-
-        }
-
-        public void AddStrings(IEnumerable<string> data)
-        {
-            foreach(var dt in data)
-            {
-                var crNode = FindCommon(dt);
-                for(var i = crNode.Depth; i < dt.Length; i++)
-                {
-                    var nd = new Node(dt[i], crNode, crNode.Depth + 1);
-                    crNode.Children.Add(nd);
-                    crNode = nd;
-                }
-                crNode.Children.Add(new Node('$', crNode, crNode.Depth + 1));
-            }
-        }
-
-        public IEnumerable<string> FindAllMatch(string value)
-        {
-            IEnumerable<string> retData=null;
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                var crNode = FindCommon(value);
-                if (crNode != null)
-                {
-                    if (crNode.Depth == value.Length)
-                    {
-                        var fstValue = new StringBuilder(value.TrimEnd(crNode.Value, crNode.Value.ToString().ToLower()[0]));
-                        var prefinalList = MergeChildValues(crNode, fstValue);
-                        prefinalList.Add(fstValue);
-                        retData = prefinalList.Select(el => el.ToString()).Distinct().OrderBy(el => el);
-                    }
-                }
-            }
-            if (retData == null)
-            {
-                retData=new List<string>();
-            }
-            return retData;
-        }
-
-        private List<StringBuilder> MergeChildValues(Node curNode,StringBuilder prValue)
-        {
-            var retBuilders = new List<StringBuilder>();
-            if (prValue == null)
-            {
-                prValue = new StringBuilder();
-            }
-            if (curNode != null)
-            {
-                if (curNode.Value != '$')
-                {
-                    prValue.Append(curNode.Value.ToString());
-                    var prValueBeforeLoop = prValue.ToString();
-                    for(var ind = 0; ind < curNode.Children.Count; ind++)
-                    {
-                        if (ind == 0)
-                        {
-                            //for the first child append value 
-                            retBuilders.AddRange(MergeChildValues(curNode.Children[0], prValue));
-                        }
-                        else
-                        {
-                            //Create new sb for all child except first one
-                            var newSb = new StringBuilder(prValueBeforeLoop);
-                            retBuilders.Add(newSb);
-                            retBuilders.AddRange(MergeChildValues(curNode.Children[ind], newSb));
-                        }
-                    }
-                }
-
-            }            
-            return retBuilders;
+            var retList = new List<String>();
+            _root.Find(query.ToLower(), retList);
+            return retList;
         }
     }
+
+    
 
 }

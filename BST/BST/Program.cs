@@ -59,13 +59,11 @@ namespace BST
         private void RecursiveInOrder(Node curNode, List<int> valuesList)
         {
             if (valuesList == null)
-            {
                 valuesList = new List<int>();
-            }
-            if (curNode == null)
-            {
+          
+            if (curNode == null)            
                 return;
-            }
+            
             RecursiveInOrder(curNode.LeftNode, valuesList);
             valuesList.Add(curNode.Value);
             RecursiveInOrder(curNode.RightNode, valuesList);
@@ -77,7 +75,7 @@ namespace BST
                 AddNode(ar);               
             }
         }
-        private Node RecursiveFindNode(int val,Node curNode)
+        private static Node RecursiveFindNode(int val,Node curNode)
         {
             
             if (val > curNode.Value && curNode.RightNode!=null)

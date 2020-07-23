@@ -9,16 +9,13 @@ namespace Sorts
     {
         static void Main(string[] args)
         {
-
-           
             var unSortedList = new List<int>{ 100,10,200,1,54,45,5,66,99 };
             var rand = new Random().Next(1000000);
             var rand1 = new Random();
-            for (var i = rand; i > 1; i--)
-            {
-                unSortedList.Add(rand1.Next(1000000));
-            }
 
+            for (var i = rand; i > 1; i--)            
+                unSortedList.Add(rand1.Next(1000000));
+            
             Console.WriteLine($"No Of Items {unSortedList.Count}");
             var inArray1 = unSortedList.ToArray();
             Console.WriteLine($"Time Start Quick Sort {DateTime.Now.ToString("HH:mm:ss")}");           
@@ -71,14 +68,10 @@ namespace Sorts
             RecursiveQuickSort(inArray, left , endInd);
         }
         public static void QuickSort(int[] inArray)
-        {
+        {            
+            if(inArray==null || inArray.Length == 0)//validation
+                return;            
             
-            if(inArray==null || inArray.Length == 0)
-            {
-                //validation
-                return;
-            }
-
             RecursiveQuickSort(inArray,0,inArray.Length-1);                
         }
 

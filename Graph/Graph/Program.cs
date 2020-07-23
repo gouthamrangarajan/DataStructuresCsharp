@@ -15,7 +15,7 @@ namespace Graph
             var p6 = PersonGenerator.Generate();
             var p7 = PersonGenerator.Generate();
 
-            var dual = false;
+            var dual = true;
             Graph gp = new Graph(dual);
             Console.WriteLine($"Dual Graph ?: {dual}");
             Console.WriteLine($"Addition People Connection (Graph Edges): {DateTime.Now.ToShortTimeString()}");

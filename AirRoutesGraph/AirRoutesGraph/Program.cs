@@ -13,10 +13,10 @@ namespace AirRoutesGraph
         {
             Console.WriteLine("Welcome!");
             AirMap graph = new AirMap();
-            graph.AddRoute("A", "B");
-            graph.AddRoute("B", "A");
-            graph.AddRoute("C", "D");
             graph.AddRoute("A", "C");
+            graph.AddRoute("C", "D");
+            graph.AddRoute("A", "B");
+            graph.AddRoute("B", "A");                        
             graph.AddRoute("B", "C");
             graph.AddRoute("C", "B");
             graph.AddRoute("D", "B");
@@ -25,7 +25,7 @@ namespace AirRoutesGraph
             graph.AddRoute("D", "E");
             graph.AddRoute("E", "B");            
             graph.AddRoute("C", "E");
-            var check= graph.GetAllRoutes("A", "E");
+            var check= graph.GetAllRoutes("A", "D");
             check.ForEach(dt =>
             {
                 Console.WriteLine(dt);
@@ -42,44 +42,42 @@ namespace AirRoutesGraph
             List<string> allRoutes = new List<string>();
             var srcNode = GetNode(source);
             var destNode = GetNode(destination);
-            //GetAllRouteRecursive(srcNode, destNode, allRoutes,new HashSet<string>(),source);
-            GetAllRoutesBFS(srcNode, destNode, allRoutes);
+            GetAllRouteRecursive(srcNode, destNode, allRoutes,new HashSet<string>(),source);
+            //GetAllRoutesBFS(srcNode, destNode, allRoutes);
             return allRoutes;
         }
 
-        private void GetAllRoutesBFS(Node srcNode,Node destNode,List<string> allRoutes)
-        {
-            if (srcNode == null || destNode == null)
-                return;
+        //private void GetAllRoutesBFS(Node srcNode,Node destNode,List<string> allRoutes)
+        //{
+        //    if (srcNode == null || destNode == null)
+        //        return;
 
-            Queue<KeyValuePair<string, Node>> queue = new Queue<KeyValuePair<string, Node>>();
-            HashSet<string> visited = new HashSet<string>();
+        //    Queue<KeyValuePair<string, Node>> queue = new Queue<KeyValuePair<string, Node>>();
+        //    HashSet<string> visited = new HashSet<string>();
 
-            queue.Enqueue(new KeyValuePair<string, Node>(srcNode.Route, srcNode));
-            while (queue.Count > 0)
-            {
-                var curr = queue.Dequeue();
-                
-                if (curr.Value == destNode)
-                {
-                    allRoutes.Add(curr.Key);
+        //    queue.Enqueue(new KeyValuePair<string, Node>(srcNode.Route, srcNode));
+        //    while (queue.Count > 0)
+        //    {
+        //        var curr = queue.Dequeue();
+        //        if (visited.Contains(curr.Value.Route))
+        //            continue;
+
+        //        if (curr.Value == destNode)                
+        //            allRoutes.Add(curr.Key);
                     
-                }
-                else
-                {                    
-
-                    visited.Add(curr.Value.Route);
-
-                    foreach (var adj in curr.Value.Adjacent)
-                    {
-                        if (!visited.Contains(adj.Route))
-                            queue.Enqueue(new KeyValuePair<string, Node>(curr.Key + "," + adj.Route, adj));
-                    }                 
-                }
                 
-            }
+        //        else
+        //        {                    
+        //            visited.Add(curr.Value.Route);
+        //            foreach (var adj in curr.Value.Adjacent)
+        //            {                       
+        //               queue.Enqueue(new KeyValuePair<string, Node>(curr.Key + "," + adj.Route, adj));
+        //            }                 
+        //        }
+                
+        //    }
 
-        }
+        //}
         private void GetAllRouteRecursive(Node srcNode, Node destNode, List<string> allRoutes, HashSet<string> visited, string prefix)
         {
             if (srcNode == null || destNode == null)

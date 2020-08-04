@@ -51,21 +51,16 @@ namespace AirRoutesGraph
         //{
         //    if (srcNode == null || destNode == null)
         //        return;
-
         //    Queue<KeyValuePair<string, Node>> queue = new Queue<KeyValuePair<string, Node>>();
         //    HashSet<string> visited = new HashSet<string>();
-
         //    queue.Enqueue(new KeyValuePair<string, Node>(srcNode.Route, srcNode));
         //    while (queue.Count > 0)
         //    {
         //        var curr = queue.Dequeue();
         //        if (visited.Contains(curr.Value.Route))
         //            continue;
-
         //        if (curr.Value == destNode)                
-        //            allRoutes.Add(curr.Key);
-                    
-                
+        //            allRoutes.Add(curr.Key);                                    
         //        else
         //        {                    
         //            visited.Add(curr.Value.Route);
@@ -73,21 +68,16 @@ namespace AirRoutesGraph
         //            {                       
         //               queue.Enqueue(new KeyValuePair<string, Node>(curr.Key + "," + adj.Route, adj));
         //            }                 
-        //        }
-                
+        //        }                
         //    }
-
         //}
         private void GetAllRouteRecursive(Node srcNode, Node destNode, List<string> allRoutes, HashSet<string> visited, string prefix)
         {
             if (srcNode == null || destNode == null)
                 return;
-
             if (visited.Contains(srcNode.Route))
                 return;
-
             visited.Add(srcNode.Route);
-
             if (srcNode == destNode)
             {
                 allRoutes.Add(prefix);
@@ -115,7 +105,6 @@ namespace AirRoutesGraph
                 _nodeLookUp.Add(destination, destNode);
             }
             srcnode.AddAdjacent(destNode);
-
         }
 
         private Node GetNode(string route)
@@ -135,7 +124,6 @@ namespace AirRoutesGraph
         {
             Route = route;
         }
-
         internal void AddAdjacent(Node node)
         {
             if (!Adjacent.Contains(node))

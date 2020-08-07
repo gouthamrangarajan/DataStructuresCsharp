@@ -40,21 +40,21 @@ namespace MinMaxHeapCombo
         static double GetMedian(Heap heap1,Heap heap2)
         {
             if (heap1.GetSize() > heap2.GetSize())
-                return heap1.Peak();
+                return heap1.Peek();
             else if (heap2.GetSize() > heap1.GetSize())
-                return heap2.Peak();
+                return heap2.Peek();
             else
             {
-                return ((double)(heap1.Peak() + heap2.Peak())) / 2;
+                return ((double)(heap1.Peek() + heap2.Peek())) / 2;
             }
         }
         static void BalanceHeap(Heap heap1,Heap heap2)
         {
             if (heap1.GetSize() > heap2.GetSize() + 1)
-                heap2.Add(heap1.poll());  
+                heap2.Add(heap1.Poll());  
 
             else if (heap2.GetSize() > heap1.GetSize() + 1)
-                heap1.Add(heap2.poll());
+                heap1.Add(heap2.Poll());
 
         }
         static void AddDataToHeap(Heap minHeap, Heap maxHeap,int data)
@@ -66,7 +66,7 @@ namespace MinMaxHeapCombo
                 minHeap.Add(data);
             else
             {
-                int peak = minHeap.Peak();
+                int peak = minHeap.Peek();
                 if (data > peak)
                     minHeap.Add(data);
                 else
@@ -113,17 +113,17 @@ namespace MinMaxHeapCombo
         public void Add(int value)
         {
             ensureCapacity();
-            _size++;
-            _data[_size - 1] = value;
+            _data[_size] = value;
+            _size++;            
             heapifyUp(_size-1);            
         }
 
-        public int Peak()
+        public int Peek()
         {
             return _data[0];
         }
 
-        public int poll()
+        public int Poll()
         {
             var ret = _data[0];
             _data[0] = _data[_size - 1];

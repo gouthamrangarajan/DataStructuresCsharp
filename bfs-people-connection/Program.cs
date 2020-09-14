@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace bst_people_connection
+namespace bfs_people_connection
 {
     class Program
     {

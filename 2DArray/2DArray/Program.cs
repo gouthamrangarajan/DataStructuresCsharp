@@ -21,11 +21,11 @@ namespace _2DArray
             {
                 { 'T','E','S','T' },
                 {'C','H','E','K' },
-                 {'D','C','B','A' },
+                 {'D','C','A','A' },
                  {'D','X','M','A' },
             };
 
-            var present = CheckWordExists(board, "EKABCD");
+            var present = CheckWordExists(board, "EKAAM");
             Console.WriteLine(present.ToString());
             Console.ReadKey();
         }
@@ -43,8 +43,12 @@ namespace _2DArray
                     for(var colNum=0;colNum<=board.GetUpperBound(1);colNum++){
                         if(word[0]==board[rowNum,colNum]){
                             present=checkRecursiveWordExist(word,1,board,rowNum,colNum+1,Direction.Right);
+                            if(present)
+                                break;
                         }
                     }
+                    if(present)
+                        break;
                 }
             }
             return present;

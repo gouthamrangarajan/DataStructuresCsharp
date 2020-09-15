@@ -25,81 +25,69 @@ namespace _2DArray
                  {'D','X','M','A' },
             };
 
-            var present = CheckWordExists(board, "EKABCX");
+            var present = CheckWordExists(board, "EKABCD");
             Console.WriteLine(present.ToString());
             Console.ReadKey();
         }
 
+        private enum Direction{
+            Right,
+            Bottom,
+            Left
+        }
         private static bool CheckWordExists(char[,] board, string word)
         {
             var present = false;
-            for(var rowNum = 0; rowNum <= board.GetUpperBound(0); rowNum++)
-            {
-                for(var colNum = 0; colNum <= board.GetUpperBound(1); colNum++)
-                {                    
-                    present = recursiveCheckWordExists(board, rowNum, colNum,word,0,Move.Right);
-                    if (present)
-                        break;
+            if(!string.IsNullOrWhiteSpace(word)){
+                for(var rowNum=0;rowNum<=board.GetUpperBound(0);rowNum++){
+                    for(var colNum=0;colNum<=board.GetUpperBound(1);colNum++){
+                        if(word[0]==board[rowNum,colNum]){
+                            present=checkRecursiveWordExist(word,1,board,rowNum,colNum+1,Direction.Right);
+                        }
+                    }
                 }
-                if (present)
-                    break;
             }
-
             return present;
         }
 
-        private enum Move
-        {            
-            Right,
-            Left,
-            Bottom,            
-        }
-        private static bool recursiveCheckWordExists(char[,] board, int rowNum, int colNum, string word,int index,Move currentMovement)
+        private static bool checkRecursiveWordExist(string word, int wordIndex, char[,] board, int rowNum, int colNum, Direction currentDirection)
         {
-            if (rowNum > board.GetUpperBound(0) || colNum > board.GetUpperBound(1))
-                return false;
-
-            if (rowNum < 0 || colNum < 0)
-                return false;
-
-            if (index >= word.Length)
+            var present=false;
+            if(wordIndex>=word.Length){
                 return true;
-
-            if (board[rowNum, colNum] == word[index])
-            {
-                var present = true;
-
-                switch (currentMovement)
-                {
-                    case Move.Bottom:
-                        {
-                            present = recursiveCheckWordExists(board, rowNum, colNum + 1, word, index + 1, Move.Right);
-                            if (!present)
-                                present = recursiveCheckWordExists(board, rowNum + 1, colNum, word, index + 1, Move.Bottom);
-                            if (!present)
-                                present = recursiveCheckWordExists(board, rowNum, colNum - 1, word, index + 1, Move.Left);
-                            break;
-                        }
-                    case Move.Right:
-                        {
-                            present = recursiveCheckWordExists(board, rowNum, colNum + 1, word, index + 1, Move.Right);
-                            if (!present)
-                                present = recursiveCheckWordExists(board, rowNum + 1, colNum, word, index + 1, Move.Bottom);
-                            break;
-                        }
-                    case Move.Left:
-                        {
-                            present = recursiveCheckWordExists(board, rowNum, colNum - 1, word, index + 1, Move.Left);
-                            if (!present)
-                                present = recursiveCheckWordExists(board, rowNum + 1, colNum, word, index + 1, Move.Bottom);
-                            break;
-                        }
-                }
-                
-                return present;
             }
-
-            return false;
+            if(rowNum>board.GetUpperBound(0) || colNum>board.GetUpperBound(1) || rowNum<0 || colNum <0){
+                return false;
+            }
+            if(board[rowNum,colNum].ToString().ToLower()==word[wordIndex].ToString().ToLower()){
+                present=true;
+            }
+            if(present){
+                switch(currentDirection){
+                    case Direction.Right:{
+                        present=checkRecursiveWordExist(word,wordIndex+1,board,rowNum,colNum+1,Direction.Right);
+                        if(!present)
+                            present=checkRecursiveWordExist(word,wordIndex+1,board,rowNum+1,colNum,Direction.Bottom);
+                        break;
+                    }
+                    case Direction.Bottom:{
+                        present=checkRecursiveWordExist(word,wordIndex+1,board,rowNum,colNum+1,Direction.Right);
+                        if(!present)
+                            present=checkRecursiveWordExist(word,wordIndex+1,board,rowNum+1,colNum,Direction.Bottom);
+                        if(!present)
+                            present=checkRecursiveWordExist(word,wordIndex+1,board,rowNum,colNum-1,Direction.Left);
+                        break;
+                    }
+                    case Direction.Left:{
+                        present=checkRecursiveWordExist(word,wordIndex+1,board,rowNum,colNum-1,Direction.Left);
+                        if(!present)
+                            present=checkRecursiveWordExist(word,wordIndex+1,board,rowNum+1,colNum,Direction.Bottom);                        
+                        break;
+                    }
+                }
+            }
+            return present;
         }
     }
+        
 }

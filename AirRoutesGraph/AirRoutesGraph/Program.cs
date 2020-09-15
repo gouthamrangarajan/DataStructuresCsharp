@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Find all routes from Point A to point B
 /// </summary>
 namespace AirRoutesGraph
 {
-    class AirMap
-    {
-        private Dictionary<string, Node> _nodeLookUp = new Dictionary<string, Node>();
+   static class Program
+    {        
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome!");
@@ -26,109 +26,94 @@ namespace AirRoutesGraph
             graph.AddRoute("E", "B");            
             graph.AddRoute("C", "E");
             var check= graph.GetAllRoutes("A", "D");
-            check.ForEach(dt =>
-            {
+            foreach(var dt in check){                        
                 Console.WriteLine(dt);
-            });
-            if (check.Count == 0)
+            }
+            if (check==null || check.Count() == 0)
             {
                 Console.WriteLine("No routes available");
+            }            
+        }
+    }
+    public class AirMap{
+
+        private Dictionary<string,Node> _nodeLookUp=new Dictionary<string, Node>();
+
+        private Node GetNode(string route){           
+            var routeLoweCase=route.ToLower();
+            if(_nodeLookUp.ContainsKey(routeLoweCase)){
+                return _nodeLookUp[routeLoweCase];
             }
-            Console.ReadLine();
+            return null;
         }
 
-        private List<string> GetAllRoutes(string source, string destination)
-        {
-            List<string> allRoutes = new List<string>();
-            var srcNode = GetNode(source);
-            var destNode = GetNode(destination);
-            GetAllRouteRecursive(srcNode, destNode, allRoutes,new HashSet<string>(),source);
-            //GetAllRoutesBFS(srcNode, destNode, allRoutes);
+        private Node AddNode(string route){           
+            var routeLoweCase=route.ToLower();
+            if(!_nodeLookUp.ContainsKey(routeLoweCase)){
+                _nodeLookUp.Add(routeLoweCase,new Node(route));    
+            }
+            return _nodeLookUp[routeLoweCase];
+        }
+        public void AddRoute(string source,string destination){
+            if(string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(destination))
+                return;
+            
+            var srcNd=GetNode(source);
+            if(srcNd==null)
+                srcNd=AddNode(source);
+
+            var destNd=GetNode(destination);
+            if(destNd==null)
+                destNd=AddNode(destination);
+
+            srcNd.AddAdjacent(destNd);
+        }
+        public IEnumerable<string> GetAllRoutes(string source,string destination){
+            if(string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(destination))
+                return null;
+            List<string> allRoutes=new List<string>();
+            CollectAllRoutesRecursive(GetNode(source),GetNode(destination),new HashSet<Node>(),allRoutes,source);
             return allRoutes;
         }
 
-        //private void GetAllRoutesBFS(Node srcNode,Node destNode,List<string> allRoutes)
-        //{
-        //    if (srcNode == null || destNode == null)
-        //        return;
-        //    Queue<KeyValuePair<string, Node>> queue = new Queue<KeyValuePair<string, Node>>();
-        //    HashSet<string> visited = new HashSet<string>();
-        //    queue.Enqueue(new KeyValuePair<string, Node>(srcNode.Route, srcNode));
-        //    while (queue.Count > 0)
-        //    {
-        //        var curr = queue.Dequeue();
-        //        if (visited.Contains(curr.Value.Route))
-        //            continue;
-        //        if (curr.Value == destNode)                
-        //            allRoutes.Add(curr.Key);                                    
-        //        else
-        //        {                    
-        //            visited.Add(curr.Value.Route);
-        //            foreach (var adj in curr.Value.Adjacent)
-        //            {                       
-        //               queue.Enqueue(new KeyValuePair<string, Node>(curr.Key + "," + adj.Route, adj));
-        //            }                 
-        //        }                
-        //    }
-        //}
-        private void GetAllRouteRecursive(Node srcNode, Node destNode, List<string> allRoutes, HashSet<string> visited, string prefix)
-        {
-            if (srcNode == null || destNode == null)
+        private void CollectAllRoutesRecursive(Node srcNode,Node destNode,HashSet<Node> visited,List<string> routes,string currentRoute){
+            if(srcNode==null || destNode==null)
                 return;
-            if (visited.Contains(srcNode.Route))
+            
+            if(visited.Contains(srcNode))
                 return;
-            visited.Add(srcNode.Route);
-            if (srcNode == destNode)
-            {
-                allRoutes.Add(prefix);
+
+            if(srcNode==destNode)
+                routes.Add(currentRoute);
+            
+            visited.Add(srcNode);
+
+            foreach(var adj in srcNode.Adjacents){
+                CollectAllRoutesRecursive(adj,destNode,visited,routes,currentRoute+" => "+adj.Location);
             }
-            else
-            {
-                foreach (var adj in srcNode.Adjacent)                
-                    GetAllRouteRecursive(adj, destNode, allRoutes, visited, prefix + "," + adj.Route);                                   
-            }
-            visited.Remove(srcNode.Route);
+            visited.Remove(srcNode);
         }
 
-        void AddRoute(string source,string destination)
-        {
-            var srcnode=GetNode(source);
-            if (srcnode == null)
-            {
-                srcnode = new Node(source);
-                _nodeLookUp.Add(source, srcnode);
+        private class Node{
+            private List<Node> _adj= new List<Node>();
+            private string _location;
+            internal string Location{
+                get{
+                    return _location;
+                }
             }
-            var destNode = GetNode(destination);
-            if (destNode == null)
-            {
-                destNode = new Node(destination);
-                _nodeLookUp.Add(destination, destNode);
+            internal IEnumerable<Node> Adjacents=>_adj;
+            internal Node(string location){
+                _location=location;
             }
-            srcnode.AddAdjacent(destNode);
-        }
 
-        private Node GetNode(string route)
-        {
-            if (_nodeLookUp.ContainsKey(route))
-                return _nodeLookUp[route];
-            else
-                return null;
+            internal void AddAdjacent(Node nd){
+                if(nd!=null && !_adj.Contains(nd)){
+                    _adj.Add(nd);
+                }
+
+            }
         }
     }
-
-    public class Node
-    {
-        public string Route;
-        public List<Node> Adjacent = new List<Node>();
-        public Node(string route)
-        {
-            Route = route;
-        }
-        internal void AddAdjacent(Node node)
-        {
-            if (!Adjacent.Contains(node))
-                Adjacent.Add(node);
-        }
-    }
-    
 }
+        
